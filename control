@@ -1,0 +1,9 @@
+Package: com.seunome.fakepurchasetweak
+Name: FakePurchaseTweak
+Depends: mobilesubstrate
+Version: 1.0
+Architecture: iphoneos-arm
+Description: Simula compras In-App
+Maintainer: Seu Nome <seuemail@example.com>
+Author: Seu Nome
+Section: Tweaks
