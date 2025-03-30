@@ -5,12 +5,10 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         if (NSClassFromString(@"SKPaymentQueue")) {
             NSLog(@"[FakePurchaseTweak] StoreKit detectado. Hooks serão aplicados.");
+            %init();
         } else {
             NSLog(@"[FakePurchaseTweak] StoreKit NÃO encontrado. Nenhum hook será aplicado.");
-            return;
         }
-
-        %init();
     });
 }
 
@@ -27,7 +25,6 @@
 
 - (void)start {
     NSLog(@"[FakePurchaseTweak] Interceptado start de SKReceiptRefreshRequest.");
-    // Não chama o original pra evitar refresh de recibo real
 }
 
 %end
@@ -37,17 +34,19 @@
 - (void)addPayment:(SKPayment *)payment {
     NSLog(@"[FakePurchaseTweak] Interceptando addPayment para: %@", payment.productIdentifier);
 
-    // Simular uma transação "comprada"
     SKPaymentTransaction *fakeTransaction = [[NSClassFromString(@"SKPaymentTransaction") alloc] init];
     [fakeTransaction setValue:@(SKPaymentTransactionStatePurchased) forKey:@"transactionState"];
 
-    // Simular queue
     NSArray *transactions = @[fakeTransaction];
-    [self performSelector:@selector(paymentQueue:updatedTransactions:)
-               withObject:self
-               withObject:transactions];
 
-    NSLog(@"[FakePurchaseTweak] Transação fake enviada.");
+    if ([self respondsToSelector:@selector(paymentQueue:updatedTransactions:)]) {
+        [self performSelector:@selector(paymentQueue:updatedTransactions:)
+                   withObject:self
+                   withObject:transactions];
+        NSLog(@"[FakePurchaseTweak] Transação fake enviada com sucesso.");
+    } else {
+        NSLog(@"[FakePurchaseTweak] Falha ao enviar transação fake.");
+    }
 }
 
 %end
