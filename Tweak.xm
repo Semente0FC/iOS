@@ -1,3 +1,6 @@
+#import <StoreKit/StoreKit.h>
+#import <Foundation/Foundation.h>
+
 %hook SKPaymentTransaction
 
 - (SKPaymentTransactionState)transactionState {
@@ -18,8 +21,10 @@
 
 - (void)addPayment:(SKPayment *)payment {
     NSLog(@"[FakePurchaseTweak]: Pagamento interceptado para produto: %@", payment.productIdentifier);
-    SKPaymentTransaction *fakeTransaction = [%c(SKPaymentTransaction) alloc];
-    object_setInstanceVariable(fakeTransaction, "_transactionState", (void *)SKPaymentTransactionStatePurchased);
+    
+    SKPaymentTransaction *fakeTransaction = [[SKPaymentTransaction alloc] init];
+    [fakeTransaction setValue:@(SKPaymentTransactionStatePurchased) forKey:@"transactionState"];
+    
     [[SKPaymentQueue defaultQueue] finishTransaction:fakeTransaction];
 }
 
